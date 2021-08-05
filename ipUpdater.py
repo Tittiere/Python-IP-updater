@@ -35,8 +35,15 @@ def noJson():
     with open(jsonPath, 'w') as config_file:
         json.dump(config, config_file, indent=4)
     print('Write your email data in the "config.json" file, then press a key')
-    os.system("pause")
-
+    while True:
+        os.system("pause")
+        with open(jsonPath) as config_file:
+            config2 = json.load(config_file)
+        if config == config2:
+            print('Please, write your mail data in the "config.json" file')
+        else:
+            break
+        
 def updateJson():
     global config
     with open(jsonPath, 'w') as config_file:
@@ -84,8 +91,8 @@ loadJson()
 try:
     print('Welcome to Gmail IP updater!')
     sched = BlockingScheduler(standalone=True)
-    print(float(config['interval']))
-    sched.add_job(check, 'interval', minutes=float(config['interval']))
+    mins = config['interval'].replace(',', '.').replace('"', '')
+    sched.add_job(check, 'interval', minutes=float(mins))
     sched.start()
 except ValueError:
     print('The interval you set in the "config.json" file is not acceptable\nPlease write an acceptable value and try again\nTip: you can write integer or floats')
