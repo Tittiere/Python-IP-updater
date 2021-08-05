@@ -13,18 +13,15 @@ Hi, here's your new IP:\n"""
 
 timestamp = datetime.now()
 send = False
-exit = False
-config = {}
 ip = 'null'
 
 def loadJson():
-    global config, exit
+    global config
     try:
         with open(jsonPath) as config_file:
             config = json.load(config_file)
     except:
         noJson()
-        exit = True
 
 def noJson():
     global config
@@ -37,6 +34,8 @@ def noJson():
     config['interval'] = 'interval (minutes)'
     with open(jsonPath, 'w') as config_file:
         json.dump(config, config_file, indent=4)
+    print('Write your email data in the "config.json" file, then press a key')
+    os.system("pause")
 
 def updateJson():
     global config
@@ -70,7 +69,7 @@ def sendEmail(msg):
             server.login(senderEmail, pwd)
             server.sendmail(senderEmail, receiverEmail, msg)
             server.quit()
-    except smtplib.SMTPAuthenticationError:
+    except (smtplib.SMTPAuthenticationError, smtplib.SMTPServerDisconnected):
         print('Username and Password not accepted. Edit the "config.json" file.\nIf this same error comes up again, you might have to give access\nto less secure apps on your gmail account\nhttps://myaccount.google.com/lesssecureapps')
         sched.remove_all_jobs()
 
@@ -82,18 +81,15 @@ def check():
         sendEmail(msg)
 
 loadJson()
-if exit != True:
-    try:
-        print('Welcome to Gmail IP updater!')
-        sched = BlockingScheduler(standalone=True)
-        sched.add_job(check, 'interval', seconds=float(config['interval']))
-        sched.start()
-    except ValueError:
-        print('The interval you set in the "config.json" file is not acceptable\nPlease write an acceptable value and try again\nTip: you can write integer or floats')
-        os.system("pause")
-    except KeyboardInterrupt:
-        print('Thanks for using Claristorio\'s Gmail IP updater!\nMy GitHub: https://github.com/claristorio/python')
-        os.system("pause")
-else:
-    print('Write your email data in the "config.json" file to start the program')
+try:
+    print('Welcome to Gmail IP updater!')
+    sched = BlockingScheduler(standalone=True)
+    print(float(config['interval']))
+    sched.add_job(check, 'interval', minutes=float(config['interval']))
+    sched.start()
+except ValueError:
+    print('The interval you set in the "config.json" file is not acceptable\nPlease write an acceptable value and try again\nTip: you can write integer or floats')
+    os.system("pause")
+except KeyboardInterrupt:
+    print('Thanks for using Claristorio\'s Gmail IP updater!\nMy GitHub: https://github.com/claristorio/python')
     os.system("pause")
