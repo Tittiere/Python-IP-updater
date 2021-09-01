@@ -50,18 +50,21 @@ def updateJson():
         json.dump(config, config_file, indent=4)
 
 def updateIP():
-    global send, ip, timestamp
+    global send, ip, timestamp, config
     try:
         ip = get('https://api.ipify.org').text
     except:
         pass
-    if ip != config['oldIP']:
-        timestamp = str(datetime.now()).split(".")[0]
-        send = True
-        config['oldIP'] = ip
-        updateJson()
-    else:
-        send = False
+    with open(jsonPath) as config_file:
+        config = json.load(config_file)
+    if len(ip) <= 15:
+        if ip != config['oldIP']:
+            timestamp = str(datetime.now()).split(".")[0]
+            send = True
+            config['oldIP'] = ip
+            updateJson()
+        else:
+            send = False
 
 def sendEmail(msg):
     global timestamp
@@ -95,7 +98,7 @@ try:
     sched.add_job(check, 'interval', minutes=float(mins))
     sched.start()
 except ValueError:
-    print('The interval you set in the "config.json" file is not acceptable\nPlease write an acceptable value and try again\nTip: you can write integer or floats')
+    print('The interval you set in the "config.json" file is not acceptable\nPlease write an acceptable value and try again\nTip: you can write integers or floats')
     os.system("pause")
 except KeyboardInterrupt:
     print('Thanks for using Claristorio\'s Gmail IP updater!\nMy GitHub: https://github.com/claristorio/python')
