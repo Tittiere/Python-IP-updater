@@ -1,9 +1,15 @@
 from apscheduler.schedulers.blocking import BlockingScheduler
 from datetime import datetime
 from requests import get
-import smtplib, ssl, os, json
+import platform, smtplib, ssl, os, json
 
-jsonPath = os.path.dirname(os.path.realpath(__file__)) + "\config.json"
+syst = platform.system()
+if syst == 'Darwin':
+    sep = '/'
+elif syst == 'Windows':
+    sep = '\\'
+
+jsonPath = os.path.dirname(os.path.realpath(__file__)) + sep + "config.json"
 config = {}
 
 msg = """\
@@ -36,7 +42,10 @@ def noJson():
         json.dump(config, config_file, indent=4)
     print('Write your email data in the "config.json" file, then press a key')
     while True:
-        os.system("pause")
+        if syst != 'Windows':
+            input('Press enter to continue ')
+        else:
+            os.system('pause')
         with open(jsonPath) as config_file:
             config2 = json.load(config_file)
         if config == config2:
@@ -84,8 +93,10 @@ def sendEmail(msg):
         sched.remove_all_jobs()
 
 def check():
+    global config
     print('Checking your ip -', str(datetime.now()).split(" ")[1].split(".")[0])
     updateIP()
+    ip = config['oldIP']
     if send == True:
         print(f'Your IP has changed\nI\'m sending a new mail\nNew IP: {ip}')
         sendEmail(msg)
@@ -99,7 +110,13 @@ try:
     sched.start()
 except ValueError:
     print('The interval you set in the "config.json" file is not acceptable\nPlease write an acceptable value and try again\nTip: you can write integers or floats')
-    os.system("pause")
+    if syst != 'Windows':
+        input('Press enter to continue ')
+    else:
+        os.system('pause')
 except KeyboardInterrupt:
     print('Thanks for using Claristorio\'s Gmail IP updater!\nMy GitHub: https://github.com/claristorio/python')
-    os.system("pause")
+    if syst != 'Windows':
+        input('Press enter to continue ')
+    else:
+        os.system('pause')
