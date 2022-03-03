@@ -26,6 +26,12 @@ def loadJson():
     try:
         with open(jsonPath) as config_file:
             config = json.load(config_file)
+        if type(config['mailData']['receiverEmail']) == type(config['mailData']['senderEmail']):
+            print('Now you can send your IP to multiple mails.\nIf you want to do it update the config.json file with\na python list of the mails you want to send the ip.\nIf you don\'t know how to write one, delete the config.json file and the program will create an example for you.')
+            aus = []
+            aus.append(config['mailData']['receiverEmail'])
+            config['mailData']['receiverEmail'] = aus
+            updateJson()
     except:
         noJson()
 
@@ -33,7 +39,7 @@ def noJson():
     global config
     config['mailData'] = {
         'senderEmail': 'sender',
-        'recieverEmail': 'reciever',
+        'receiverEmail': ['receiver1', 'receiver2', 'delete or add users if you need'],
         'senderPwd': 'password'
     }
     config['oldIP'] = get('https://api.ipify.org').text
@@ -81,16 +87,16 @@ def sendEmail(msg):
     port = 465  # For SSL
     pwd = config['mailData']['senderPwd']
     senderEmail = config['mailData']['senderEmail']
-    receiverEmail = config['mailData']['recieverEmail']
     context = ssl.create_default_context()
-    try:
-        with smtplib.SMTP_SSL('smtp.gmail.com', port, context=context) as server:
-            server.login(senderEmail, pwd)
-            server.sendmail(senderEmail, receiverEmail, msg)
-            server.quit()
-    except (smtplib.SMTPAuthenticationError, smtplib.SMTPServerDisconnected):
-        print('Username and Password not accepted. Edit the "config.json" file.\nIf this same error comes up again, you might have to give access\nto less secure apps on your gmail account\nhttps://myaccount.google.com/lesssecureapps')
-        sched.remove_all_jobs()
+    for mail in config['mailData']['receiverEmail']:
+        try:
+            with smtplib.SMTP_SSL('smtp.gmail.com', port, context=context) as server:
+                server.login(senderEmail, pwd)
+                server.sendmail(senderEmail, mail, msg)
+                server.quit()
+        except (smtplib.SMTPAuthenticationError, smtplib.SMTPServerDisconnected):
+            print('Username and Password not accepted. Edit the "config.json" file.\nIf this same error comes up again, you might have to give access\nto less secure apps on your gmail account\nhttps://myaccount.google.com/lesssecureapps')
+            sched.remove_all_jobs()
 
 def check():
     global config
