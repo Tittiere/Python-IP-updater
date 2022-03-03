@@ -9,7 +9,10 @@ if syst == 'Darwin':
 elif syst == 'Windows':
     sep = '\\'
 
-jsonPath = os.path.dirname(os.path.realpath(__file__)) + sep + "config.json"
+# exe way of knowing path to file:
+jsonPath = os.getcwd() + sep + "config.json"
+# vscode .py program way of knowing path to file
+# jsonPath = os.path.dirname(os.path.realpath(__file__)) + sep + "config.json"
 config = {}
 
 msg = """\
@@ -32,7 +35,8 @@ def loadJson():
             aus.append(config['mailData']['receiverEmail'])
             config['mailData']['receiverEmail'] = aus
             updateJson()
-    except:
+    except Exception as e:
+        print(e)
         noJson()
 
 def noJson():
