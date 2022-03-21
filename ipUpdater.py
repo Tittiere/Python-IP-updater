@@ -1,18 +1,18 @@
 from apscheduler.schedulers.blocking import BlockingScheduler
 from datetime import datetime
 from requests import get
-import platform, smtplib, ssl, os, json
+import smtplib, json, ssl, os
 
-syst = platform.system()
-if syst == 'Darwin':
-    sep = '/'
-elif syst == 'Windows':
-    sep = '\\'
+def pause():
+    if os.name == 'nt':
+        os.system('pause')
+    else:
+        input('Press enter to continue ')
 
 # exe way of knowing path to file:
-jsonPath = os.getcwd() + sep + "config.json"
+jsonPath = os.getcwd() + os.path.sep + "config.json"
 # vscode .py program way of knowing path to file
-# jsonPath = os.path.dirname(os.path.realpath(__file__)) + sep + "config.json"
+# jsonPath = os.path.dirname(os.path.realpath(__file__)) + os.path.sep + "config.json"
 config = {}
 
 msg = """\
@@ -52,10 +52,7 @@ def noJson():
         json.dump(config, config_file, indent=4)
     print('Write your email data in the "config.json" file, then press a key')
     while True:
-        if syst != 'Windows':
-            input('Press enter to continue ')
-        else:
-            os.system('pause')
+        pause()
         with open(jsonPath) as config_file:
             config2 = json.load(config_file)
         if config == config2:
@@ -120,13 +117,7 @@ try:
     sched.start()
 except ValueError:
     print('The interval you set in the "config.json" file is not acceptable\nPlease write an acceptable value and try again\nTip: you can write integers or floats')
-    if syst != 'Windows':
-        input('Press enter to continue ')
-    else:
-        os.system('pause')
+    pause()
 except KeyboardInterrupt:
     print('Thanks for using Claristorio\'s Gmail IP updater!\nMy GitHub: https://github.com/claristorio/python')
-    if syst != 'Windows':
-        input('Press enter to continue ')
-    else:
-        os.system('pause')
+    pause()
