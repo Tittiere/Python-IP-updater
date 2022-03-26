@@ -111,6 +111,7 @@ def check():
 loadJson()
 try:
     print('Welcome to Gmail IP updater!')
+    check()
     sched = BlockingScheduler(standalone=True)
     mins = config['interval'].replace(',', '.').replace('"', '')
     sched.add_job(check, 'interval', minutes=float(mins))
