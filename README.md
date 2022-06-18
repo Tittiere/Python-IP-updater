@@ -1,3 +1,6 @@
+This project is discontinued since Google removed "less secure apps access" to gmail.
+From now on I will instead use outlook.
+
 # Gmail IP Updater
 
 This program sends you an email with your IP address every time it updates.
