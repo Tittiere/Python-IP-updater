@@ -6,5 +6,5 @@ Gmail doesn't allow less secure apps access anymore. This program is optimized f
 
 ## Outlook third party app access
 
-To activate third party app access on outlook log into your account at outlook.live.com
+To activate third party app access on outlook log into your account at outlook.live.com <\br>
 Once logged in, click on the settings icon -> view all settings -> mail -> sync email -> select "yes" under "POP and IMAP"
