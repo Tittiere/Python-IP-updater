@@ -1,7 +1,9 @@
 from apscheduler.schedulers.blocking import BlockingScheduler
 from datetime import datetime
 from requests import get
-import smtplib, json, ssl, os
+import smtplib, json, os
+
+os.chdir(os.path.dirname(os.path.realpath(__file__)))
 
 def pause():
     if os.name == 'nt':
@@ -85,18 +87,18 @@ def updateIP():
 def sendEmail(msg):
     global timestamp
     msg = msg + str(ip) + "\n" + str(timestamp)
-    port = 465  # For SSL
+    port = 587
     pwd = config['mailData']['senderPwd']
     senderEmail = config['mailData']['senderEmail']
-    context = ssl.create_default_context()
     for mail in config['mailData']['receiverEmail']:
         try:
-            with smtplib.SMTP_SSL('smtp.gmail.com', port, context=context) as server:
+            with smtplib.SMTP('smtp.office365.com', port) as server:
+                server.starttls()
                 server.login(senderEmail, pwd)
                 server.sendmail(senderEmail, mail, msg)
                 server.quit()
         except (smtplib.SMTPAuthenticationError, smtplib.SMTPServerDisconnected):
-            print('Username and Password not accepted. Edit the "config.json" file.\nIf this same error comes up again, you might have to give access\nto less secure apps on your gmail account\nhttps://myaccount.google.com/lesssecureapps')
+            print('Username and Password not accepted. Edit the "config.json" file.')
             sched.remove_all_jobs()
 
 def check():
