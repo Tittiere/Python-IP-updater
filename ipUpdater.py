@@ -11,10 +11,7 @@ def pause():
     else:
         input('Press enter to continue ')
 
-# exe way of knowing path to file:
 jsonPath = os.getcwd() + os.path.sep + "config.json"
-# vscode .py program way of knowing path to file
-# jsonPath = os.path.dirname(os.path.realpath(__file__)) + os.path.sep + "config.json"
 config = {}
 
 msg = """\
