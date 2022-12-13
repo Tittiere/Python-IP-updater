@@ -72,12 +72,11 @@ def updateIP():
         pass
     with open(jsonPath) as config_file:
         config = json.load(config_file)
-    if len(ip) <= 15:
+    if len(ip) <= 15 and ip.lower() != "bad gateway":
         if ip != config['oldIP']:
             timestamp = str(datetime.now()).split(".")[0]
             send = True
             config['oldIP'] = ip
-            updateJson()
         else:
             send = False
 
@@ -94,6 +93,7 @@ def sendEmail(msg):
                 server.login(senderEmail, pwd)
                 server.sendmail(senderEmail, mail, msg)
                 server.quit()
+            updateJson()
         except (smtplib.SMTPAuthenticationError, smtplib.SMTPServerDisconnected):
             print('Username and Password not accepted. Edit the "config.json" file.')
             sched.remove_all_jobs()
