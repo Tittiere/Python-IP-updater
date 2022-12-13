@@ -3,7 +3,8 @@ from datetime import datetime
 from requests import get
 import smtplib, json, os
 
-os.chdir(os.path.dirname(os.path.realpath(__file__)))
+# needed only for my buggy computer
+# os.chdir(os.path.dirname(os.path.realpath(__file__)))
 
 def pause():
     if os.name == 'nt':
