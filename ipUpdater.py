@@ -13,6 +13,16 @@ def pause():
 
 jsonPath = os.getcwd() + os.path.sep + "config.json"
 config = {}
+std_config = {}
+std_config['mailData'] = {
+    'senderEmail': 'sender',
+    'receiverEmail': ['receiver1', 'receiver2', 'delete or add users if you need'],
+    'senderPwd': 'password'
+}
+std_config['oldIP'] = 'None'
+std_config['interval'] = 'interval (minutes)'
+
+scheduler = BlockingScheduler(standalone=True)
 
 msg = """\
 Subject: Your IP has changed!
@@ -34,30 +44,15 @@ def loadJson():
             aus.append(config['mailData']['receiverEmail'])
             config['mailData']['receiverEmail'] = aus
             updateJson()
-    except Exception as e:
-        print(e)
+        return True
+    except FileNotFoundError:
         noJson()
+        return False
 
 def noJson():
-    global config
-    config['mailData'] = {
-        'senderEmail': 'sender',
-        'receiverEmail': ['receiver1', 'receiver2', 'delete or add users if you need'],
-        'senderPwd': 'password'
-    }
-    config['oldIP'] = get('https://api.ipify.org').text
-    config['interval'] = 'interval (minutes)'
     with open(jsonPath, 'w') as config_file:
-        json.dump(config, config_file, indent=4)
-    print('Write your email data in the "config.json" file, then press a key')
-    while True:
-        pause()
-        with open(jsonPath) as config_file:
-            config2 = json.load(config_file)
-        if config == config2:
-            print('Please, write your mail data in the "config.json" file')
-        else:
-            break
+        json.dump(std_config, config_file, indent=4)
+    print('Write your email data in the "config.json" file')
         
 def updateJson():
     global config
@@ -67,7 +62,7 @@ def updateJson():
 def updateIP():
     global send, ip, timestamp, config
     try:
-        ip = get('https://api.ipify.org').text
+        ip = get('https://api64.ipify.org/').text
     except:
         pass
     with open(jsonPath) as config_file:
@@ -81,7 +76,7 @@ def updateIP():
             send = False
 
 def sendEmail(msg):
-    global timestamp
+    global timestamp, scheduler
     msg = msg + str(ip) + "\n" + str(timestamp)
     port = 587
     pwd = config['mailData']['senderPwd']
@@ -95,8 +90,8 @@ def sendEmail(msg):
                 server.quit()
             updateJson()
         except (smtplib.SMTPAuthenticationError, smtplib.SMTPServerDisconnected):
-            print('Username and Password not accepted. Edit the "config.json" file.')
-            sched.remove_all_jobs()
+            print('Username or Password not accepted. Edit the "config.json" file.')
+            scheduler.remove_all_jobs()
 
 def check():
     global config
@@ -107,17 +102,22 @@ def check():
         print(f'Your IP has changed\nI\'m sending a new mail\nNew IP: {ip}')
         sendEmail(msg)
 
-loadJson()
-try:
-    print('Welcome to Gmail IP updater!')
-    check()
-    sched = BlockingScheduler(standalone=True)
-    mins = config['interval'].replace(',', '.').replace('"', '')
-    sched.add_job(check, 'interval', minutes=float(mins))
-    sched.start()
-except ValueError:
-    print('The interval you set in the "config.json" file is not acceptable\nPlease write an acceptable value and try again\nTip: you can write integers or floats')
-    pause()
-except KeyboardInterrupt:
-    print('Thanks for using Claristorio\'s Gmail IP updater!\nMy GitHub: https://github.com/claristorio/python')
+cont = loadJson()
+if config == std_config:
+    cont = False
+    print("Please, add all the information needed in the config.json file")
+if cont:
+    try:
+        print('Welcome to IP updater!')
+        check()
+        mins = config['interval'].replace(',', '.').replace('"', '')
+        scheduler.add_job(check, 'interval', minutes=float(mins), id='AA')
+        scheduler.start()
+    except ValueError:
+        print('The interval you set in the "config.json" file is not acceptable\nPlease write an acceptable value and try again\nTip: you can write integers or floats')
+        pause()
+    except KeyboardInterrupt:
+        print('Thanks for using Tittiere\'s Gmail IP updater!\nMy GitHub: https://github.com/Tittiere')
+        pause()
+else:
     pause()
